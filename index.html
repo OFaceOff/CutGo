@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CutGo - Extrator de Frames de Vídeo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #18181b;
+            --bg-input: #27272a;
+            --bg-hover: #3f3f46;
+
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+
+            --accent-color: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --success-color: #10b981;
+
+            --border-color: #3f3f46;
+
+            --radius-md: 8px;
+            --radius-lg: 16px;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+
+            --transition: all 0.2s ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 500px;
+        }
+
+        main {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            background-color: rgba(39, 39, 42, 0.3);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--accent-color);
+            background-color: rgba(139, 92, 246, 0.05);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .upload-icon svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .upload-area:hover .upload-icon svg {
+            fill: var(--accent-color);
+        }
+
+        .upload-area h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .editor-section {
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .editor-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .video-container {
+            width: 100%;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .video-metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            background-color: var(--bg-input);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-suffix {
+            color: var(--text-secondary);
+            padding-right: 1rem;
+            font-size: 0.875rem;
+            user-select: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .btn-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .progress-section {
+            display: none;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-input);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #a855f7);
+            width: 0%;
+            border-radius: 999px;
+            transition: width 0.1s linear;
+        }
+
+        .gallery-section {
+            display: none;
+        }
+
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .frame-card {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            aspect-ratio: 16/9;
+            group: hover;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .frame-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .frame-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+            backdrop-filter: blur(2px);
+        }
+
+        .frame-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .frame-card:hover .frame-overlay {
+            opacity: 1;
+        }
+
+        .frame-number {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .download-icon-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-icon-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-hover);
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-warning {
+            color: #f59e0b;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1 class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            CutGo
+        </h1>
+        <p>Ferramenta profissional para extração de frames de vídeos. Extraia imagens com rapidez e segurança,
+            diretamente no seu navegador totalmente grátis.</p>
+    </header>
+
+    <main>
+        <div id="uploadCard" class="card">
+            <div class="upload-area" id="dropZone">
+                <div class="upload-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3>Arraste e solte seu vídeo aqui</h3>
+                    <p>ou clique para selecionar (MP4, WebM, MOV)</p>
+                </div>
+                <input type="file" id="fileInput" accept="video/*">
+            </div>
+        </div>
+
+        <div id="editorCard" class="card hidden">
+            <div class="editor-section" style="display: grid;">
+
+                <div>
+                    <div class="video-container">
+                        <video id="videoPlayer" controls></video>
+                    </div>
+                    <div class="video-metadata" id="videoMetadata">
+                    </div>
+                </div>
+
+                <div class="settings-panel">
+                    <div class="form-group">
+                        <label for="intervalInput">Intervalo de Captura</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="intervalInput" min="0.1" step="0.1" value="1.0">
+                            <span class="input-suffix">segundos</span>
+                        </div>
+                        <span class="text-warning">Define de quanto em quanto tempo um frame será gerado.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxFramesInput">Limite Máximo de Frames</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="maxFramesInput" min="1" step="1" value="100">
+                            <span class="input-suffix">frames</span>
+                        </div>
+                        <span class="text-warning" id="limitWarning">Recomendado manter abaixo de 200 para evitar
+                            travamentos.</span>
+                    </div>
+
+                    <div style="flex-grow: 1;"></div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="resetBtn" class="btn btn-outline" style="flex: 1;">Trocar Vídeo</button>
+                        <button id="extractBtn" class="btn btn-primary" style="flex: 2;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                                <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                                <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                                <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                                <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                                <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                            </svg>
+                            Extrair Frames
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="progressCard" class="card progress-section">
+            <div class="progress-header">
+                <span id="progressText">Processando vídeo...</span>
+                <span id="progressPercentage">0%</span>
+            </div>
+            <div class="progress-track">
+                <div id="progressBar" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="galleryCard" class="card gallery-section">
+            <div class="gallery-header">
+                <h3>Frames Extraídos (<span id="frameCountSpan">0</span>)</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="clearGalleryBtn" class="btn btn-danger">Limpar</button>
+                    <button id="downloadZipBtn" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Baixar tudo em ZIP
+                    </button>
+                </div>
+            </div>
+
+            <div id="galleryGrid" class="gallery-grid">
+                <div class="empty-gallery" style="grid-column: 1 / -1;">
+                    Nenhum frame extraído ainda.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <canvas id="processingCanvas" class="hidden"></canvas>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadCard = document.getElementById('uploadCard');
+
+        const editorCard = document.getElementById('editorCard');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoMetadata = document.getElementById('videoMetadata');
+        const intervalInput = document.getElementById('intervalInput');
+        const maxFramesInput = document.getElementById('maxFramesInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const progressCard = document.getElementById('progressCard');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const progressPercentage = document.getElementById('progressPercentage');
+
+        const galleryCard = document.getElementById('galleryCard');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const frameCountSpan = document.getElementById('frameCountSpan');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const clearGalleryBtn = document.getElementById('clearGalleryBtn');
+
+        const canvas = document.getElementById('processingCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        let currentVideoUrl = null;
+        let videoFile = null;
+        let extractedFrames = [];
+        let isProcessing = false;
+        let cancelProcessing = false;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('video/')) {
+                alert('Por favor, selecione um arquivo de vídeo válido.');
+                return;
+            }
+
+            if (currentVideoUrl) {
+                URL.revokeObjectURL(currentVideoUrl);
+            }
+
+            videoFile = file;
+            currentVideoUrl = URL.createObjectURL(file);
+
+            videoPlayer.src = currentVideoUrl;
+            videoPlayer.load();
+
+            videoPlayer.onloadedmetadata = () => {
+                showEditorSection();
+                updateMetadataUI();
+                estimateFrames();
+            };
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateMetadataUI() {
+            videoMetadata.innerHTML = `
+                <span class="badge" title="Nome do arquivo">${videoFile.name.length > 20 ? videoFile.name.substring(0, 20) + '...' : videoFile.name}</span>
+                <span class="badge" title="Duração">${formatTime(videoPlayer.duration)}</span>
+                <span class="badge" title="Resolução">${videoPlayer.videoWidth}x${videoPlayer.videoHeight}</span>
+                <span class="badge" title="Tamanho">${formatBytes(videoFile.size)}</span>
+            `;
+        }
+
+        function showEditorSection() {
+            uploadCard.classList.add('hidden');
+            editorCard.classList.remove('hidden');
+        }
+
+        function resetApp() {
+            if (isProcessing) return;
+
+            if (currentVideoUrl) {
+                URL.revokeObjectURL(currentVideoUrl);
+                currentVideoUrl = null;
+            }
+            videoFile = null;
+            fileInput.value = '';
+
+            editorCard.classList.add('hidden');
+            progressCard.style.display = 'none';
+            galleryCard.style.display = 'none';
+            uploadCard.classList.remove('hidden');
+
+            clearGallery();
+        }
+
+        resetBtn.addEventListener('click', resetApp);
+
+        intervalInput.addEventListener('input', estimateFrames);
+        maxFramesInput.addEventListener('input', estimateFrames);
+
+        function estimateFrames() {
+            if (!videoPlayer.duration) return;
+
+            const interval = parseFloat(intervalInput.value);
+            if (isNaN(interval) || interval <= 0) return;
+
+            const maxLimit = parseInt(maxFramesInput.value) || 100;
+            const totalEstimated = Math.floor(videoPlayer.duration / interval) + 1;
+            const finalCount = Math.min(totalEstimated, maxLimit);
+
+            const warningEl = document.getElementById('limitWarning');
+            if (totalEstimated > maxLimit) {
+                warningEl.textContent = `Atenção: O vídeo renderia ${totalEstimated} frames. Limitando aos primeiros ${maxLimit} configurados.`;
+                warningEl.style.color = 'var(--text-secondary)';
+            } else if (finalCount > 200) {
+                warningEl.textContent = `Aviso: Extrair ${finalCount} frames pode causar lentidão no navegador.`;
+                warningEl.style.color = 'var(--danger-color)';
+            } else {
+                warningEl.textContent = `Serão extraídos aproximadamente ${finalCount} frames.`;
+                warningEl.style.color = 'var(--success-color)';
+            }
+        }
+
+        function seekVideo(time) {
+            return new Promise((resolve) => {
+                const onSeeked = () => {
+                    videoPlayer.removeEventListener('seeked', onSeeked);
+                    resolve();
+                };
+                videoPlayer.addEventListener('seeked', onSeeked);
+                videoPlayer.currentTime = time;
+            });
+        }
+
+        function captureCurrentFrame() {
+            canvas.width = videoPlayer.videoWidth;
+            canvas.height = videoPlayer.videoHeight;
+            ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png');
+        }
+
+        extractBtn.addEventListener('click', async () => {
+            if (isProcessing || !videoPlayer.duration) return;
+
+            const interval = parseFloat(intervalInput.value);
+            const maxFrames = parseInt(maxFramesInput.value);
+
+            if (isNaN(interval) || interval < 0.1) {
+                alert("O intervalo mínimo é 0.1 segundos.");
+                return;
+            }
+
+            isProcessing = true;
+            cancelProcessing = false;
+            extractBtn.disabled = true;
+            resetBtn.disabled = true;
+            intervalInput.disabled = true;
+            maxFramesInput.disabled = true;
+
+            progressCard.style.display = 'block';
+            galleryCard.style.display = 'block';
+            progressBar.style.width = '0%';
+
+            videoPlayer.pause();
+
+            const originalTime = videoPlayer.currentTime;
+
+            clearGallery();
+
+            let currentTime = 0;
+            let frameCount = 0;
+
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+            try {
+                while (currentTime <= videoPlayer.duration && frameCount < maxFrames) {
+                    if (cancelProcessing) break;
+
+                    progressText.textContent = `Extraindo frame ${frameCount + 1}... (Tempo: ${currentTime.toFixed(1)}s)`;
+
+                    await seekVideo(currentTime);
+
+                    await sleep(10);
+
+                    const dataUrl = captureCurrentFrame();
+                    const frameNumber = frameCount + 1;
+                    const filename = `frame-${String(frameNumber).padStart(4, '0')}.png`;
+
+                    const frameData = {
+                        id: frameNumber,
+                        dataUrl: dataUrl,
+                        filename: filename,
+                        time: currentTime
+                    };
+
+                    extractedFrames.push(frameData);
+                    renderFrameToGallery(frameData);
+
+                    frameCount++;
+                    currentTime += interval;
+
+                    const progress = Math.min(100, Math.round((currentTime / videoPlayer.duration) * 100));
+                    progressBar.style.width = `${progress}%`;
+                    progressPercentage.textContent = `${progress}%`;
+                }
+
+                progressText.textContent = "Extração concluída com sucesso!";
+                progressBar.style.width = "100%";
+                progressPercentage.textContent = "100%";
+
+            } catch (error) {
+                console.error(error);
+                progressText.textContent = "Erro ao extrair frames.";
+                progressText.style.color = "var(--danger-color)";
+            } finally {
+                videoPlayer.currentTime = originalTime;
+
+                isProcessing = false;
+                extractBtn.disabled = false;
+                resetBtn.disabled = false;
+                intervalInput.disabled = false;
+                maxFramesInput.disabled = false;
+
+                frameCountSpan.textContent = extractedFrames.length;
+            }
+        });
+
+        function clearGallery() {
+            galleryGrid.innerHTML = '';
+            extractedFrames = [];
+            frameCountSpan.textContent = '0';
+
+            if (!isProcessing || cancelProcessing) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-gallery';
+                emptyMsg.style.gridColumn = '1 / -1';
+                emptyMsg.textContent = 'Nenhum frame extraído ainda.';
+                galleryGrid.appendChild(emptyMsg);
+            }
+        }
+
+        clearGalleryBtn.addEventListener('click', () => {
+            if (confirm("Tem certeza que deseja limpar todos os frames extraídos?")) {
+                cancelProcessing = true;
+                clearGallery();
+                progressCard.style.display = 'none';
+            }
+        });
+
+        function renderFrameToGallery(frame) {
+            const emptyMsg = galleryGrid.querySelector('.empty-gallery');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            const card = document.createElement('div');
+            card.className = 'frame-card';
+
+            const img = document.createElement('img');
+            img.src = frame.dataUrl;
+            img.alt = frame.filename;
+            img.loading = "lazy";
+
+            const numberBadge = document.createElement('div');
+            numberBadge.className = 'frame-number';
+            numberBadge.textContent = `#${frame.id} (${frame.time.toFixed(1)}s)`;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'frame-overlay';
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-icon-btn';
+            downloadBtn.title = `Baixar ${frame.filename}`;
+            downloadBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            `;
+
+            downloadBtn.onclick = () => downloadSingleFile(frame.dataUrl, frame.filename);
+
+            overlay.appendChild(downloadBtn);
+
+            card.appendChild(img);
+            card.appendChild(numberBadge);
+            card.appendChild(overlay);
+
+            galleryGrid.appendChild(card);
+        }
+
+        function downloadSingleFile(dataUrl, filename) {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        downloadZipBtn.addEventListener('click', async () => {
+            if (extractedFrames.length === 0) return;
+
+            const originalText = downloadZipBtn.innerHTML;
+            downloadZipBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+                    <line x1="12" y1="2" x2="12" y2="6"></line>
+                    <line x1="12" y1="18" x2="12" y2="22"></line>
+                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                    <line x1="2" y1="12" x2="6" y2="12"></line>
+                    <line x1="18" y1="12" x2="22" y2="12"></line>
+                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                </svg>
+                Compactando...
+            `;
+            downloadZipBtn.disabled = true;
+
+            try {
+                await new Promise(r => setTimeout(r, 50));
+
+                const zip = new JSZip();
+
+                extractedFrames.forEach(frame => {
+                    const base64Data = frame.dataUrl.split(',')[1];
+                    zip.file(frame.filename, base64Data, { base64: true });
+                });
+
+                const blob = await zip.generateAsync({
+                    type: "blob",
+                    compression: "STORE"
+                });
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = "CutGo_Frames.zip";
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 100);
+
+            } catch (error) {
+                console.error(error);
+                alert("Ocorreu um erro ao gerar o arquivo ZIP.");
+            } finally {
+                downloadZipBtn.innerHTML = originalText;
+                downloadZipBtn.disabled = false;
+            }
+        });
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes spin { 100% { transform: rotate(360deg); } }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+
+</html>
