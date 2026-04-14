@@ -51,7 +51,6 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
             background-attachment: fixed;
-
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
@@ -1476,7 +1475,7 @@
                 });
 
             } catch (error) {
-                console.error("Erro ao gerar mosaico:", error);
+                console.error(error);
                 mosaicContainer.innerHTML = '<div style="text-align:center; padding: 3rem; color: var(--danger-color);">Ocorreu um erro ao gerar o mosaico.</div>';
             } finally {
                 generateMosaicBtn.innerHTML = originalText;
