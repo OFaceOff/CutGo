@@ -10,7 +10,7 @@
 
     <style>
         :root {
-            --bg-body: #09090b;
+            var-bg-body: #09090b;
             --bg-card: #18181b;
             --bg-input: #27272a;
             --bg-hover: #3f3f46;
@@ -44,7 +44,7 @@
         }
 
         body {
-            background-color: var(--bg-body);
+            background-color: #09090b;
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
@@ -56,18 +56,12 @@
 
         header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             animation: fadeIn 0.5s ease-out;
         }
 
-        @media (min-width: 768px) {
-            header {
-                margin-bottom: 2.5rem;
-            }
-        }
-
         .logo {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             letter-spacing: -0.05em;
             background: linear-gradient(135deg, #a78bfa, #8b5cf6);
@@ -78,18 +72,19 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        @media (min-width: 768px) {
-            .logo {
-                font-size: 2.5rem;
-            }
+        .logo:hover {
+            transform: scale(1.02);
         }
 
         header p {
             color: var(--text-secondary);
             font-size: 1rem;
-            max-width: 500px;
+            max-width: 550px;
+            margin: 0 auto;
         }
 
         main {
@@ -104,21 +99,15 @@
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 1.25rem;
+            padding: 2rem;
             box-shadow: var(--shadow-md);
             animation: fadeIn 0.4s ease-out;
-        }
-
-        @media (min-width: 768px) {
-            .card {
-                padding: 2rem;
-            }
         }
 
         .upload-area {
             border: 2px dashed var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 2rem 1.5rem;
+            padding: 3rem 2rem;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
@@ -127,12 +116,6 @@
             align-items: center;
             gap: 1rem;
             background-color: rgba(39, 39, 42, 0.3);
-        }
-
-        @media (min-width: 768px) {
-            .upload-area {
-                padding: 3rem 2rem;
-            }
         }
 
         .upload-area:hover,
@@ -168,7 +151,7 @@
         }
 
         .editor-section {
-            display: none;
+            display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
         }
@@ -217,16 +200,24 @@
             gap: 1.25rem;
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.25rem;
+            /* Reduzido para aproximar o helper text */
         }
 
         label {
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--text-primary);
+            margin-bottom: 0.25rem;
         }
 
         .input-wrapper {
@@ -244,7 +235,8 @@
             box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
         }
 
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
             background: transparent;
             border: none;
@@ -254,11 +246,30 @@
             outline: none;
         }
 
+        select option {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+
         .input-suffix {
             color: var(--text-secondary);
             padding-right: 1rem;
             font-size: 0.875rem;
             user-select: none;
+        }
+
+        .text-info {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+            margin-top: 0.2rem;
         }
 
         .btn {
@@ -274,6 +285,7 @@
             transition: var(--transition);
             border: none;
             outline: none;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -298,7 +310,7 @@
             color: var(--text-primary);
         }
 
-        .btn-outline:hover {
+        .btn-outline:hover:not(:disabled) {
             background-color: var(--bg-hover);
         }
 
@@ -308,22 +320,9 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        .btn-danger:hover {
+        .btn-danger:hover:not(:disabled) {
             background-color: var(--danger-color);
             color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-        }
-
-        @media (min-width: 480px) {
-            .action-buttons {
-                flex-direction: row;
-            }
         }
 
         .progress-section {
@@ -367,10 +366,35 @@
             gap: 1rem;
         }
 
+        /* --- Organização dos Botões da Galeria --- */
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        /* No telemóvel, re-arranja num Grid bonito em vez de ficar desalinhado */
+        @media (max-width: 640px) {
+            .header-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header-actions #downloadZipBtn {
+                grid-column: 1 / -1;
+                /* Botão de ZIP estica na linha de baixo */
+            }
+
+            .header-actions .btn {
+                width: 100%;
+            }
+        }
+
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.25rem;
         }
 
         .frame-card {
@@ -380,7 +404,6 @@
             background-color: var(--bg-input);
             border: 1px solid var(--border-color);
             aspect-ratio: 16/9;
-            group: hover;
             animation: fadeIn 0.3s ease-out;
         }
 
@@ -425,21 +448,26 @@
             font-weight: 600;
         }
 
-        .download-icon-btn {
+        .action-buttons-overlay {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-icon-btn {
             background-color: var(--accent-color);
             color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.2s;
         }
 
-        .download-icon-btn:hover {
+        .action-icon-btn:hover {
             transform: scale(1.1);
             background-color: var(--accent-hover);
         }
@@ -449,6 +477,174 @@
             padding: 3rem;
             color: var(--text-secondary);
             font-size: 0.875rem;
+            grid-column: 1 / -1;
+        }
+
+        /* --- Opções Avançadas --- */
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0;
+            margin-top: 0.25rem;
+            transition: var(--transition);
+            width: fit-content;
+        }
+
+        .advanced-toggle:hover {
+            color: var(--accent-hover);
+        }
+
+        .advanced-toggle svg {
+            transition: transform 0.3s ease;
+        }
+
+        .advanced-toggle.open svg {
+            transform: rotate(180deg);
+        }
+
+        .advanced-options {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, margin-top 0.3s ease, opacity 0.3s ease;
+        }
+
+        .advanced-options.open {
+            max-height: 200px;
+            margin-top: 0.5rem;
+            opacity: 1;
+        }
+
+        /* --- Modal Genérico (Lightbox e Mosaicos) --- */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glow);
+            object-fit: contain;
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10000;
+        }
+
+        .lightbox-close:hover {
+            color: var(--danger-color);
+        }
+
+        /* --- Estilo Específico do Modal de Mosaicos --- */
+        .mosaic-modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .mosaic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mosaic-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .mosaic-container {
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .mosaic-preview-wrapper {
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #000;
+        }
+
+        .mosaic-preview-wrapper img {
+            width: 100%;
+            display: block;
+        }
+
+        .mosaic-preview-actions {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+        }
+
+        .mosaic-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom-left-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-lg);
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         footer {
@@ -457,6 +653,10 @@
             text-align: center;
             color: var(--text-secondary);
             font-size: 0.875rem;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         @keyframes fadeIn {
@@ -471,15 +671,14 @@
             }
         }
 
-        .hidden {
-            display: none !important;
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        .text-warning {
-            color: #f59e0b;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: block;
+        .spin-icon {
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
@@ -487,7 +686,7 @@
 <body>
 
     <header>
-        <h1 class="logo">
+        <h1 class="logo" onclick="window.location.reload()" title="Recarregar página inicial">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="23 7 16 12 23 17 23 7"></polygon>
@@ -495,8 +694,8 @@
             </svg>
             CutGo
         </h1>
-        <p>Ferramenta profissional para extração de frames de vídeos. Extraia imagens com rapidez e segurança,
-            diretamente no seu navegador totalmente grátis.</p>
+        <p>Ferramenta profissional para extração de frames de vídeos. Rápido, seguro e privado, tudo acontece
+            diretamente no seu navegador.</p>
     </header>
 
     <main>
@@ -518,52 +717,90 @@
 
         <div id="editorCard" class="card hidden">
             <div class="editor-section">
-
                 <div>
                     <div class="video-container">
-                        <video id="videoPlayer" controls></video>
+                        <video id="videoPlayer" controls playsinline preload="auto"></video>
                     </div>
-                    <div class="video-metadata" id="videoMetadata">
-                    </div>
+                    <div class="video-metadata" id="videoMetadata"></div>
                 </div>
 
                 <div class="settings-panel">
-                    <div class="form-group">
-                        <label for="intervalInput">Intervalo de Captura</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="intervalInput" min="0.1" step="0.1" value="1.0">
-                            <span class="input-suffix">segundos</span>
+                    <!-- Opções Principais -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="intervalInput">Intervalo de Captura</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="intervalInput" min="0.1" step="0.1" value="1.0">
+                                <span class="input-suffix">seg.</span>
+                            </div>
+                            <span class="help-text">Tempo entre cada frame extraído.</span>
                         </div>
-                        <span class="text-warning">Define de quanto em quanto tempo um frame será gerado.</span>
+                        <div class="form-group">
+                            <label for="maxFramesInput">Limite de Imagens</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="maxFramesInput" min="1" step="1" value="100">
+                                <span class="input-suffix">frames</span>
+                            </div>
+                            <span class="help-text">Máximo de fotos a gerar.</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="maxFramesInput">Limite Máximo de Frames</label>
+                        <label for="qualitySelect">Qualidade Visual (JPEG)</label>
                         <div class="input-wrapper">
-                            <input type="number" id="maxFramesInput" min="1" step="1" value="100">
-                            <span class="input-suffix">frames</span>
+                            <select id="qualitySelect">
+                                <option value="0.6">Baixa (Mais rápido, arquivo leve)</option>
+                                <option value="0.8" selected>Média (Equilíbrio ideal)</option>
+                                <option value="1.0">Alta (Melhor nitidez)</option>
+                            </select>
                         </div>
-                        <span class="text-warning" id="limitWarning">Recomendado manter abaixo de 200 para evitar
-                            travamentos.</span>
+                        <span class="help-text">Define o peso e a qualidade das fotos geradas.</span>
                     </div>
 
-                    <div style="flex-grow: 1;"></div>
+                    <!-- Botão Toggle -->
+                    <button type="button" id="advancedToggleBtn" class="advanced-toggle">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                        Opções Avançadas
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
 
-                    <div class="action-buttons">
+                    <!-- Opções Ocultas -->
+                    <div id="advancedOptions" class="advanced-options">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startTimeInput">Tempo Inicial</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="startTimeInput" min="0" step="0.1" value="0">
+                                    <span class="input-suffix">seg.</span>
+                                </div>
+                                <span class="help-text">Ignorar início do vídeo.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="endTimeInput">Tempo Final</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="endTimeInput" min="0" step="0.1" value="0">
+                                    <span class="input-suffix">seg.</span>
+                                </div>
+                                <span class="help-text">Ignorar final do vídeo.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="text-info" id="estimationInfo"
+                        style="margin-top: 0.5rem; font-size: 0.85rem;">Calculando estimativa...</span>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                         <button id="resetBtn" class="btn btn-outline" style="flex: 1;">Trocar Vídeo</button>
-                        <button id="extractBtn" class="btn btn-primary" style="flex: 2;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
-                                <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
-                                <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
-                                <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
-                                <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
-                                <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
-                            </svg>
-                            Extrair Frames
-                        </button>
+                        <button id="extractBtn" class="btn btn-primary" style="flex: 2;">Extrair Frames</button>
                     </div>
                 </div>
             </div>
@@ -577,29 +814,35 @@
             <div class="progress-track">
                 <div id="progressBar" class="progress-fill"></div>
             </div>
+            <div id="cancelBtnContainer" style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                <button id="cancelProcessBtn" class="btn btn-outline"
+                    style="color: var(--danger-color); border-color: var(--danger-color);">Cancelar Processo</button>
+            </div>
         </div>
 
         <div id="galleryCard" class="card gallery-section">
             <div class="gallery-header">
                 <h3>Frames Extraídos (<span id="frameCountSpan">0</span>)</h3>
-                <div style="display: flex; gap: 0.5rem;">
+                <!-- Container ajustado para os botões alinharem perfeitamente -->
+                <div class="header-actions">
                     <button id="clearGalleryBtn" class="btn btn-danger">Limpar</button>
-                    <button id="downloadZipBtn" class="btn btn-primary">
+                    <button id="generateMosaicBtn" class="btn btn-outline"
+                        style="border-color: var(--accent-color); color: var(--accent-color);">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
-                        Baixar tudo em ZIP
+                        Gerar Mosaico
                     </button>
+                    <button id="downloadZipBtn" class="btn btn-primary">Baixar ZIP</button>
                 </div>
             </div>
 
             <div id="galleryGrid" class="gallery-grid">
-                <div class="empty-gallery" style="grid-column: 1 / -1;">
-                    Nenhum frame extraído ainda.
-                </div>
+                <div class="empty-gallery">Nenhum frame extraído ainda.</div>
             </div>
         </div>
     </main>
@@ -610,50 +853,148 @@
 
     <canvas id="processingCanvas" class="hidden"></canvas>
 
+    <!-- Modal de Lightbox (Imagens Individuais) -->
+    <div id="lightboxModal" class="lightbox-modal">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <img class="lightbox-content" id="lightboxImg">
+    </div>
+
+    <!-- Modal de Mosaicos Gerados -->
+    <div id="mosaicModal" class="lightbox-modal">
+        <div class="mosaic-modal-content">
+            <div class="mosaic-header">
+                <h2>Pré-visualização dos Mosaicos</h2>
+                <span class="lightbox-close" id="mosaicClose"
+                    style="position:static; top:auto; right:auto;">&times;</span>
+            </div>
+            <div id="mosaicContainer" class="mosaic-container">
+                <!-- Imagens dos mosaicos gerados aparecem aqui -->
+            </div>
+            <div class="mosaic-footer">
+                <button id="downloadAllMosaicsBtn" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Baixar Todos em ZIP
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const uploadCard = document.getElementById('uploadCard');
-
         const editorCard = document.getElementById('editorCard');
+        const progressCard = document.getElementById('progressCard');
+        const galleryCard = document.getElementById('galleryCard');
         const videoPlayer = document.getElementById('videoPlayer');
         const videoMetadata = document.getElementById('videoMetadata');
+
         const intervalInput = document.getElementById('intervalInput');
         const maxFramesInput = document.getElementById('maxFramesInput');
+        const startTimeInput = document.getElementById('startTimeInput');
+        const endTimeInput = document.getElementById('endTimeInput');
+        const qualitySelect = document.getElementById('qualitySelect');
+        const estimationInfo = document.getElementById('estimationInfo');
+
         const extractBtn = document.getElementById('extractBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const cancelProcessBtn = document.getElementById('cancelProcessBtn');
+        const cancelBtnContainer = document.getElementById('cancelBtnContainer');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const clearGalleryBtn = document.getElementById('clearGalleryBtn');
+        const generateMosaicBtn = document.getElementById('generateMosaicBtn');
 
-        const progressCard = document.getElementById('progressCard');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
         const progressPercentage = document.getElementById('progressPercentage');
 
-        const galleryCard = document.getElementById('galleryCard');
         const galleryGrid = document.getElementById('galleryGrid');
         const frameCountSpan = document.getElementById('frameCountSpan');
-        const downloadZipBtn = document.getElementById('downloadZipBtn');
-        const clearGalleryBtn = document.getElementById('clearGalleryBtn');
 
         const canvas = document.getElementById('processingCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+        // Toggle Advanced Options Elements
+        const advancedToggleBtn = document.getElementById('advancedToggleBtn');
+        const advancedOptions = document.getElementById('advancedOptions');
+
+        // Lightbox Elements
+        const lightboxModal = document.getElementById('lightboxModal');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        // Mosaic Modal Elements
+        const mosaicModal = document.getElementById('mosaicModal');
+        const mosaicContainer = document.getElementById('mosaicContainer');
+        const mosaicClose = document.getElementById('mosaicClose');
+        const downloadAllMosaicsBtn = document.getElementById('downloadAllMosaicsBtn');
+
         let currentVideoUrl = null;
         let videoFile = null;
         let extractedFrames = [];
+        let generatedMosaics = []; // Armazena os dados dos mosaicos gerados
         let isProcessing = false;
         let cancelProcessing = false;
 
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ADVANCED OPTIONS LOGIC
+        advancedToggleBtn.addEventListener('click', () => {
+            const isOpen = advancedOptions.classList.contains('open');
+            if (isOpen) {
+                advancedOptions.classList.remove('open');
+                advancedToggleBtn.classList.remove('open');
+            } else {
+                advancedOptions.classList.add('open');
+                advancedToggleBtn.classList.add('open');
+            }
+        });
+
+        // LIGHTBOX LOGIC
+        function openLightbox(imgSrc) {
+            lightboxImg.src = imgSrc;
+            lightboxModal.style.display = 'flex';
+            setTimeout(() => lightboxModal.classList.add('show'), 10);
+        }
+
+        function closeLightbox() {
+            lightboxModal.classList.remove('show');
+            setTimeout(() => {
+                lightboxModal.style.display = 'none';
+                lightboxImg.src = '';
+            }, 300);
+        }
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target === lightboxModal) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightboxModal.classList.contains('show')) closeLightbox();
+            if (e.key === 'Escape' && mosaicModal.classList.contains('show')) closeMosaicModal();
+        });
+
+        // MOSAIC MODAL LOGIC
+        function closeMosaicModal() {
+            mosaicModal.classList.remove('show');
+            setTimeout(() => { mosaicModal.style.display = 'none'; }, 300);
+        }
+        mosaicClose.addEventListener('click', closeMosaicModal);
+        mosaicModal.addEventListener('click', (e) => {
+            if (e.target === mosaicModal) closeMosaicModal();
+        });
+
+        // UPLOAD LOGIC
         dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('click', function () { this.value = null; });
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
@@ -669,26 +1010,51 @@
         });
 
         function handleFile(file) {
-            if (!file.type.startsWith('video/')) {
+            if (!file || !file.type.startsWith('video/')) {
                 alert('Por favor, selecione um arquivo de vídeo válido.');
                 return;
             }
 
-            if (currentVideoUrl) {
-                URL.revokeObjectURL(currentVideoUrl);
-            }
+            if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
 
             videoFile = file;
             currentVideoUrl = URL.createObjectURL(file);
 
-            videoPlayer.src = currentVideoUrl;
-            videoPlayer.load();
+            uploadCard.classList.add('hidden');
+            editorCard.classList.remove('hidden');
 
-            videoPlayer.onloadedmetadata = () => {
-                showEditorSection();
+            let isReady = false;
+            const initUI = () => {
+                if (isReady) return;
+                isReady = true;
                 updateMetadataUI();
+                setupSmartDefaults();
                 estimateFrames();
             };
+
+            videoPlayer.onloadedmetadata = initUI;
+            videoPlayer.onloadeddata = initUI;
+            videoPlayer.oncanplay = initUI;
+
+            videoPlayer.onerror = () => {
+                if (videoPlayer.getAttribute('src')) {
+                    alert("Ocorreu um erro ao tentar processar este ficheiro de vídeo.");
+                    resetBtn.click();
+                }
+            };
+
+            videoPlayer.src = currentVideoUrl;
+            videoPlayer.load();
+        }
+
+        function setupSmartDefaults() {
+            let duration = videoPlayer.duration || 0;
+            startTimeInput.value = 0;
+            endTimeInput.max = duration;
+            endTimeInput.value = parseFloat(duration).toFixed(1);
+
+            const pixels = videoPlayer.videoWidth * videoPlayer.videoHeight;
+            maxFramesInput.value = (pixels > 2073600) ? 50 : 200;
         }
 
         function formatTime(seconds) {
@@ -700,69 +1066,45 @@
         function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         function updateMetadataUI() {
+            let durationText = videoPlayer.duration ? formatTime(videoPlayer.duration) : "--:--";
             videoMetadata.innerHTML = `
-                <span class="badge" title="Nome do arquivo">${videoFile.name.length > 20 ? videoFile.name.substring(0, 20) + '...' : videoFile.name}</span>
-                <span class="badge" title="Duração">${formatTime(videoPlayer.duration)}</span>
+                <span class="badge" title="Nome">${videoFile.name.length > 25 ? videoFile.name.substring(0, 25) + '...' : videoFile.name}</span>
+                <span class="badge" title="Duração">${durationText}</span>
                 <span class="badge" title="Resolução">${videoPlayer.videoWidth}x${videoPlayer.videoHeight}</span>
                 <span class="badge" title="Tamanho">${formatBytes(videoFile.size)}</span>
             `;
         }
 
-        function showEditorSection() {
-            uploadCard.classList.add('hidden');
-            editorCard.classList.remove('hidden');
-        }
-
-        function resetApp() {
-            if (isProcessing) return;
-
-            if (currentVideoUrl) {
-                URL.revokeObjectURL(currentVideoUrl);
-                currentVideoUrl = null;
-            }
-            videoFile = null;
-            fileInput.value = '';
-
-            editorCard.classList.add('hidden');
-            progressCard.style.display = 'none';
-            galleryCard.style.display = 'none';
-            uploadCard.classList.remove('hidden');
-
-            clearGallery();
-        }
-
-        resetBtn.addEventListener('click', resetApp);
-
-        intervalInput.addEventListener('input', estimateFrames);
-        maxFramesInput.addEventListener('input', estimateFrames);
+        [intervalInput, maxFramesInput, startTimeInput, endTimeInput].forEach(input => {
+            input.addEventListener('input', estimateFrames);
+        });
 
         function estimateFrames() {
             if (!videoPlayer.duration) return;
 
+            let start = parseFloat(startTimeInput.value) || 0;
+            let end = parseFloat(endTimeInput.value) || videoPlayer.duration;
             const interval = parseFloat(intervalInput.value);
-            if (isNaN(interval) || interval <= 0) return;
-
             const maxLimit = parseInt(maxFramesInput.value) || 100;
-            const totalEstimated = Math.floor(videoPlayer.duration / interval) + 1;
+
+            if (start >= end || isNaN(interval) || interval <= 0) {
+                estimationInfo.textContent = 'Parâmetros inválidos.';
+                extractBtn.disabled = true;
+                return;
+            }
+
+            extractBtn.disabled = false;
+            const totalEstimated = Math.floor((end - start) / interval) + 1;
             const finalCount = Math.min(totalEstimated, maxLimit);
 
-            const warningEl = document.getElementById('limitWarning');
-            if (totalEstimated > maxLimit) {
-                warningEl.textContent = `Atenção: O vídeo renderia ${totalEstimated} frames. Limitando aos primeiros ${maxLimit} configurados.`;
-                warningEl.style.color = 'var(--text-secondary)';
-            } else if (finalCount > 200) {
-                warningEl.textContent = `Aviso: Extrair ${finalCount} frames pode causar lentidão no navegador.`;
-                warningEl.style.color = 'var(--danger-color)';
-            } else {
-                warningEl.textContent = `Serão extraídos aproximadamente ${finalCount} frames.`;
-                warningEl.style.color = 'var(--success-color)';
-            }
+            estimationInfo.textContent = `Serão extraídos aproximadamente ${finalCount} frames.`;
+            estimationInfo.style.color = (totalEstimated > maxLimit) ? "var(--text-secondary)" : "var(--success-color)";
         }
 
         function seekVideo(time) {
@@ -776,63 +1118,71 @@
             });
         }
 
-        function captureCurrentFrame() {
-            canvas.width = videoPlayer.videoWidth;
-            canvas.height = videoPlayer.videoHeight;
-            ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL('image/png');
+        function captureFrameToBlob(quality) {
+            return new Promise((resolve) => {
+                canvas.width = videoPlayer.videoWidth;
+                canvas.height = videoPlayer.videoHeight;
+                ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', parseFloat(quality));
+            });
         }
 
-        extractBtn.addEventListener('click', async () => {
-            if (isProcessing || !videoPlayer.duration) return;
+        const yieldThread = () => new Promise(resolve => setTimeout(resolve, 0));
 
+        extractBtn.addEventListener('click', async () => {
+            if (isProcessing) return;
+
+            const start = parseFloat(startTimeInput.value) || 0;
+            const end = parseFloat(endTimeInput.value) || videoPlayer.duration;
             const interval = parseFloat(intervalInput.value);
             const maxFrames = parseInt(maxFramesInput.value);
+            const quality = qualitySelect.value;
 
-            if (isNaN(interval) || interval < 0.1) {
-                alert("O intervalo mínimo é 0.1 segundos.");
-                return;
-            }
+            if (start >= end || interval < 0.1) return;
 
             isProcessing = true;
             cancelProcessing = false;
-            extractBtn.disabled = true;
-            resetBtn.disabled = true;
-            intervalInput.disabled = true;
-            maxFramesInput.disabled = true;
+
+            [extractBtn, resetBtn, intervalInput, maxFramesInput, startTimeInput, endTimeInput, qualitySelect].forEach(el => el.disabled = true);
 
             progressCard.style.display = 'block';
             galleryCard.style.display = 'block';
             progressBar.style.width = '0%';
+            cancelBtnContainer.style.display = 'flex';
 
             videoPlayer.pause();
-
             const originalTime = videoPlayer.currentTime;
 
             clearGallery();
 
-            let currentTime = 0;
+            let currentTime = start;
             let frameCount = 0;
 
-            const sleep = ms => new Promise(r => setTimeout(r, ms));
-
             try {
-                while (currentTime <= videoPlayer.duration && frameCount < maxFrames) {
-                    if (cancelProcessing) break;
+                while (currentTime <= end && frameCount < maxFrames) {
+                    if (cancelProcessing) {
+                        progressText.textContent = "Processamento cancelado.";
+                        break;
+                    }
 
-                    progressText.textContent = `Extraindo frame ${frameCount + 1}... (Tempo: ${currentTime.toFixed(1)}s)`;
+                    const progress = Math.min(100, Math.round(((currentTime - start) / (end - start)) * 100));
+                    progressText.textContent = `Extraindo frame ${frameCount + 1}... (${currentTime.toFixed(1)}s)`;
+                    progressBar.style.width = `${progress}%`;
+                    progressPercentage.textContent = `${progress}%`;
 
                     await seekVideo(currentTime);
+                    await yieldThread();
 
-                    await sleep(10);
+                    const blob = await captureFrameToBlob(quality);
+                    const blobUrl = URL.createObjectURL(blob);
 
-                    const dataUrl = captureCurrentFrame();
                     const frameNumber = frameCount + 1;
-                    const filename = `frame-${String(frameNumber).padStart(4, '0')}.png`;
+                    const filename = `frame-${String(frameNumber).padStart(4, '0')}.jpg`;
 
                     const frameData = {
                         id: frameNumber,
-                        dataUrl: dataUrl,
+                        blobUrl: blobUrl,
+                        blob: blob,
                         filename: filename,
                         time: currentTime
                     };
@@ -842,49 +1192,49 @@
 
                     frameCount++;
                     currentTime += interval;
-
-                    const progress = Math.min(100, Math.round((currentTime / videoPlayer.duration) * 100));
-                    progressBar.style.width = `${progress}%`;
-                    progressPercentage.textContent = `${progress}%`;
                 }
 
-                progressText.textContent = "Extração concluída com sucesso!";
-                progressBar.style.width = "100%";
-                progressPercentage.textContent = "100%";
+                if (!cancelProcessing) {
+                    progressText.textContent = "Extração concluída com sucesso!";
+                    progressBar.style.width = "100%";
+                    progressPercentage.textContent = "100%";
+                }
 
             } catch (error) {
                 console.error(error);
-                progressText.textContent = "Erro ao extrair frames.";
-                progressText.style.color = "var(--danger-color)";
+                progressText.textContent = "Erro ao processar vídeo.";
             } finally {
                 videoPlayer.currentTime = originalTime;
-
                 isProcessing = false;
-                extractBtn.disabled = false;
-                resetBtn.disabled = false;
-                intervalInput.disabled = false;
-                maxFramesInput.disabled = false;
-
+                cancelBtnContainer.style.display = 'none';
+                [extractBtn, resetBtn, intervalInput, maxFramesInput, startTimeInput, endTimeInput, qualitySelect].forEach(el => el.disabled = false);
                 frameCountSpan.textContent = extractedFrames.length;
             }
         });
 
+        cancelProcessBtn.addEventListener('click', () => {
+            if (isProcessing) cancelProcessing = true;
+        });
+
         function clearGallery() {
-            galleryGrid.innerHTML = '';
+            // Limpa as imagens normais extraídas
+            extractedFrames.forEach(frame => URL.revokeObjectURL(frame.blobUrl));
             extractedFrames = [];
+
+            // Limpa também a memória dos mosaicos se houver
+            generatedMosaics.forEach(m => URL.revokeObjectURL(m.url));
+            generatedMosaics = [];
+
+            galleryGrid.innerHTML = '';
             frameCountSpan.textContent = '0';
 
             if (!isProcessing || cancelProcessing) {
-                const emptyMsg = document.createElement('div');
-                emptyMsg.className = 'empty-gallery';
-                emptyMsg.style.gridColumn = '1 / -1';
-                emptyMsg.textContent = 'Nenhum frame extraído ainda.';
-                galleryGrid.appendChild(emptyMsg);
+                galleryGrid.innerHTML = '<div class="empty-gallery">Nenhum frame extraído ainda.</div>';
             }
         }
 
         clearGalleryBtn.addEventListener('click', () => {
-            if (confirm("Tem certeza que deseja limpar todos os frames extraídos?")) {
+            if (confirm("Deseja limpar todos os frames extraídos?")) {
                 cancelProcessing = true;
                 clearGallery();
                 progressCard.style.display = 'none';
@@ -893,15 +1243,13 @@
 
         function renderFrameToGallery(frame) {
             const emptyMsg = galleryGrid.querySelector('.empty-gallery');
-            if (emptyMsg) {
-                emptyMsg.remove();
-            }
+            if (emptyMsg) emptyMsg.remove();
 
             const card = document.createElement('div');
             card.className = 'frame-card';
 
             const img = document.createElement('img');
-            img.src = frame.dataUrl;
+            img.src = frame.blobUrl;
             img.alt = frame.filename;
             img.loading = "lazy";
 
@@ -912,8 +1260,27 @@
             const overlay = document.createElement('div');
             overlay.className = 'frame-overlay';
 
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'action-buttons-overlay';
+
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'action-icon-btn';
+            expandBtn.title = `Ampliar frame`;
+            expandBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+            `;
+            expandBtn.onclick = (e) => {
+                e.stopPropagation();
+                openLightbox(frame.blobUrl);
+            };
+
             const downloadBtn = document.createElement('button');
-            downloadBtn.className = 'download-icon-btn';
+            downloadBtn.className = 'action-icon-btn';
             downloadBtn.title = `Baixar ${frame.filename}`;
             downloadBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -923,10 +1290,18 @@
                 </svg>
             `;
 
-            downloadBtn.onclick = () => downloadSingleFile(frame.dataUrl, frame.filename);
+            downloadBtn.onclick = (e) => {
+                e.stopPropagation();
+                downloadSingleFile(frame.blobUrl, frame.filename);
+            };
 
-            overlay.appendChild(downloadBtn);
+            overlay.style.cursor = 'zoom-in';
+            overlay.onclick = () => openLightbox(frame.blobUrl);
 
+            actionsContainer.appendChild(expandBtn);
+            actionsContainer.appendChild(downloadBtn);
+
+            overlay.appendChild(actionsContainer);
             card.appendChild(img);
             card.appendChild(numberBadge);
             card.appendChild(overlay);
@@ -934,9 +1309,9 @@
             galleryGrid.appendChild(card);
         }
 
-        function downloadSingleFile(dataUrl, filename) {
+        function downloadSingleFile(url, filename) {
             const link = document.createElement('a');
-            link.href = dataUrl;
+            link.href = url;
             link.download = filename;
             document.body.appendChild(link);
             link.click();
@@ -947,64 +1322,227 @@
             if (extractedFrames.length === 0) return;
 
             const originalText = downloadZipBtn.innerHTML;
-            downloadZipBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
-                    <line x1="12" y1="2" x2="12" y2="6"></line>
-                    <line x1="12" y1="18" x2="12" y2="22"></line>
-                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-                    <line x1="2" y1="12" x2="6" y2="12"></line>
-                    <line x1="18" y1="12" x2="22" y2="12"></line>
-                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-                </svg>
-                Compactando...
-            `;
+            downloadZipBtn.innerHTML = `Compactando ZIP...`;
             downloadZipBtn.disabled = true;
 
             try {
-                await new Promise(r => setTimeout(r, 50));
+                await yieldThread();
 
                 const zip = new JSZip();
-
                 extractedFrames.forEach(frame => {
-                    const base64Data = frame.dataUrl.split(',')[1];
-                    zip.file(frame.filename, base64Data, { base64: true });
+                    zip.file(frame.filename, frame.blob);
                 });
 
-                const blob = await zip.generateAsync({
+                const zipBlob = await zip.generateAsync({
                     type: "blob",
-                    compression: "STORE"
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 }
                 });
 
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = "CutGo_Frames.zip";
-                document.body.appendChild(link);
-                link.click();
-
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 100);
+                const zipUrl = URL.createObjectURL(zipBlob);
+                downloadSingleFile(zipUrl, "CutGo_Frames.zip");
+                setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
 
             } catch (error) {
                 console.error(error);
-                alert("Ocorreu um erro ao gerar o arquivo ZIP.");
+                alert("Erro ao gerar ZIP.");
             } finally {
                 downloadZipBtn.innerHTML = originalText;
                 downloadZipBtn.disabled = false;
             }
         });
 
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes spin { 100% { transform: rotate(360deg); } }
-        `;
-        document.head.appendChild(style);
+        // --- LÓGICA DO MOSAICO COM MODAL E LIMITAÇÃO ---
+        generateMosaicBtn.addEventListener('click', async () => {
+            if (extractedFrames.length === 0) return;
 
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+            const originalText = generateMosaicBtn.innerHTML;
+            generateMosaicBtn.innerHTML = `<svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg> Processando...`;
+            generateMosaicBtn.disabled = true;
+
+            // Abrir Modal de imediato e mostrar estado de carregamento
+            mosaicContainer.innerHTML = '<div style="text-align:center; padding: 3rem; color: var(--text-secondary);">A gerar mosaicos... Isto pode levar alguns segundos.</div>';
+            mosaicModal.style.display = 'flex';
+            setTimeout(() => mosaicModal.classList.add('show'), 10);
+
+            try {
+                await yieldThread();
+
+                // Limpar array da memória anterior se existir
+                generatedMosaics.forEach(m => URL.revokeObjectURL(m.url));
+                generatedMosaics = [];
+
+                // Dividir em "Chunks" (Pedaços) de 50 frames no máximo
+                const maxPerMosaic = 50;
+                const chunks = [];
+                for (let i = 0; i < extractedFrames.length; i += maxPerMosaic) {
+                    chunks.push(extractedFrames.slice(i, i + maxPerMosaic));
+                }
+
+                const thumbWidth = 320;
+                const thumbHeight = Math.floor(thumbWidth * (videoPlayer.videoHeight / videoPlayer.videoWidth));
+                const gap = 12;
+                const padding = 24;
+                const headerHeight = 110;
+
+                // Processar cada "Pedaço" num Mosaico próprio
+                for (let c = 0; c < chunks.length; c++) {
+                    const chunkFrames = chunks[c];
+                    const totalChunkFrames = chunkFrames.length;
+
+                    const cols = Math.min(totalChunkFrames, Math.max(3, Math.ceil(Math.sqrt(totalChunkFrames))));
+                    const rows = Math.ceil(totalChunkFrames / cols);
+
+                    const mCanvas = document.createElement('canvas');
+                    mCanvas.width = padding * 2 + cols * thumbWidth + (cols - 1) * gap;
+                    mCanvas.height = padding * 2 + headerHeight + rows * thumbHeight + (rows - 1) * gap;
+                    const mCtx = mCanvas.getContext('2d');
+
+                    // 1. Pintar Fundo
+                    mCtx.fillStyle = '#18181b';
+                    mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+
+                    // 2. Escrever Cabeçalho
+                    mCtx.fillStyle = '#ffffff';
+                    mCtx.font = 'bold 26px sans-serif';
+                    let titleText = `Arquivo: ${videoFile.name}`;
+                    if (chunks.length > 1) {
+                        titleText += ` (Parte ${c + 1} de ${chunks.length})`;
+                    }
+                    mCtx.fillText(titleText, padding, padding + 26);
+
+                    mCtx.font = '18px sans-serif';
+                    mCtx.fillStyle = '#a1a1aa';
+                    const durationText = videoPlayer.duration ? formatTime(videoPlayer.duration) : "--:--";
+                    mCtx.fillText(`Resolução original: ${videoPlayer.videoWidth}x${videoPlayer.videoHeight}  |  Duração: ${durationText}  |  Tamanho: ${formatBytes(videoFile.size)}  |  Total de Frames do Vídeo: ${extractedFrames.length}`, padding, padding + 65);
+
+                    mCtx.font = 'italic 16px sans-serif';
+                    mCtx.fillStyle = '#8b5cf6';
+                    mCtx.fillText(`Gerado por CutGo - Extrator de Frames`, padding, padding + 95);
+
+                    // 3. Renderizar cada Frame no pedaço atual
+                    for (let i = 0; i < totalChunkFrames; i++) {
+                        const frame = chunkFrames[i];
+                        const col = i % cols;
+                        const row = Math.floor(i / cols);
+
+                        const x = padding + col * (thumbWidth + gap);
+                        const y = padding + headerHeight + row * (thumbHeight + gap);
+
+                        const img = new Image();
+                        img.src = frame.blobUrl;
+                        await new Promise(r => { img.onload = r; img.onerror = r; });
+
+                        mCtx.drawImage(img, x, y, thumbWidth, thumbHeight);
+
+                        mCtx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                        const text = formatTime(frame.time) + ` (${frame.time.toFixed(2)}s)`;
+                        mCtx.font = '14px sans-serif';
+                        const textWidth = mCtx.measureText(text).width;
+
+                        mCtx.fillRect(x + 5, y + 5, textWidth + 16, 26);
+
+                        mCtx.fillStyle = '#ffffff';
+                        mCtx.fillText(text, x + 13, y + 23);
+                    }
+
+                    // 4. Salvar na memória a imagem final deste bloco
+                    const blob = await new Promise(res => mCanvas.toBlob(res, 'image/jpeg', 0.90));
+                    const url = URL.createObjectURL(blob);
+
+                    generatedMosaics.push({
+                        url: url,
+                        blob: blob,
+                        filename: `CutGo_Mosaico_${videoFile.name}_Parte${c + 1}.jpg`
+                    });
+
+                    // Permitir UI respirar
+                    await yieldThread();
+                }
+
+                // 5. Renderizar imagens no Modal
+                mosaicContainer.innerHTML = '';
+                generatedMosaics.forEach((mosaicData, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'mosaic-preview-wrapper';
+
+                    const img = document.createElement('img');
+                    img.src = mosaicData.url;
+
+                    const actions = document.createElement('div');
+                    actions.className = 'mosaic-preview-actions';
+
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary';
+                    btn.innerHTML = `Baixar ${chunks.length > 1 ? `Parte ${index + 1}` : 'Mosaico'}`;
+                    btn.onclick = () => downloadSingleFile(mosaicData.url, mosaicData.filename);
+
+                    actions.appendChild(btn);
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(actions);
+
+                    mosaicContainer.appendChild(wrapper);
+                });
+
+            } catch (error) {
+                console.error("Erro ao gerar mosaico:", error);
+                mosaicContainer.innerHTML = '<div style="text-align:center; padding: 3rem; color: var(--danger-color);">Ocorreu um erro ao gerar o mosaico.</div>';
+            } finally {
+                generateMosaicBtn.innerHTML = originalText;
+                generateMosaicBtn.disabled = false;
+            }
+        });
+
+        // Download Todos os Mosaicos em ZIP (Botão dentro do Modal)
+        downloadAllMosaicsBtn.addEventListener('click', async function () {
+            if (generatedMosaics.length === 0) return;
+            const originalText = this.innerHTML;
+            this.innerHTML = 'Compactando ZIP...';
+            this.disabled = true;
+
+            try {
+                await yieldThread();
+                const zip = new JSZip();
+                generatedMosaics.forEach(m => {
+                    zip.file(m.filename, m.blob);
+                });
+                const zipBlob = await zip.generateAsync({
+                    type: "blob",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 }
+                });
+                const zipUrl = URL.createObjectURL(zipBlob);
+                downloadSingleFile(zipUrl, `CutGo_Mosaicos_${videoFile.name}.zip`);
+                setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao gerar o ZIP com os mosaicos.');
+            } finally {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (isProcessing) return;
+
+            videoPlayer.onerror = null;
+
+            if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
+            currentVideoUrl = null;
+            videoFile = null;
+            fileInput.value = '';
+
+            videoPlayer.removeAttribute('src');
+            videoPlayer.load();
+
+            clearGallery();
+
+            editorCard.classList.add('hidden');
+            progressCard.style.display = 'none';
+            galleryCard.style.display = 'none';
+            uploadCard.classList.remove('hidden');
+        });
 
     </script>
 </body>
