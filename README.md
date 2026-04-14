@@ -1,4 +1,4 @@
-# 🎬 CutGo — Extrator de Frames de Vídeo
+# ✂️ CutGo — Extrator de Frames de Vídeo
 
 Ferramenta profissional para extração de frames de vídeos.
 Rápido, seguro e privado, tudo acontece diretamente no seu navegador, sem envio para servidores.
