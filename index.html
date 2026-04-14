@@ -10,7 +10,7 @@
 
     <style>
         :root {
-            var-bg-body: #09090b;
+            --bg-body: #09090b;
             --bg-card: #18181b;
             --bg-input: #27272a;
             --bg-hover: #3f3f46;
@@ -210,7 +210,6 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            /* Reduzido para aproximar o helper text */
         }
 
         label {
@@ -383,7 +382,6 @@
 
             .header-actions #downloadZipBtn {
                 grid-column: 1 / -1;
-                /* Botão de ZIP estica na linha de baixo */
             }
 
             .header-actions .btn {
@@ -741,7 +739,8 @@
                                 <input type="number" id="maxFramesInput" min="1" step="1" value="100">
                                 <span class="input-suffix">frames</span>
                             </div>
-                            <span class="help-text">Máximo de fotos a gerar.</span>
+                            <!-- AQUI ESTÁ O NOVO TEXTO DE AJUDA -->
+                            <span class="help-text" id="maxFramesHelp">Máximo de fotos a gerar.</span>
                         </div>
                     </div>
 
@@ -751,7 +750,7 @@
                             <select id="qualitySelect">
                                 <option value="0.6">Baixa (Mais rápido, arquivo leve)</option>
                                 <option value="0.8" selected>Média (Equilíbrio ideal)</option>
-                                <option value="1.0">Alta (Melhor nitidez)</option>
+                                <option value="1.0">Alta (Melhor nitidez, arquivo mais pesado, mais lento)</option>
                             </select>
                         </div>
                         <span class="help-text">Define o peso e a qualidade das fotos geradas.</span>
@@ -795,6 +794,7 @@
                         </div>
                     </div>
 
+                    <!-- Mensagem Refinada da Estimativa -->
                     <span class="text-info" id="estimationInfo"
                         style="margin-top: 0.5rem; font-size: 0.85rem;">Calculando estimativa...</span>
 
@@ -823,7 +823,6 @@
         <div id="galleryCard" class="card gallery-section">
             <div class="gallery-header">
                 <h3>Frames Extraídos (<span id="frameCountSpan">0</span>)</h3>
-                <!-- Container ajustado para os botões alinharem perfeitamente -->
                 <div class="header-actions">
                     <button id="clearGalleryBtn" class="btn btn-danger">Limpar</button>
                     <button id="generateMosaicBtn" class="btn btn-outline"
@@ -853,13 +852,11 @@
 
     <canvas id="processingCanvas" class="hidden"></canvas>
 
-    <!-- Modal de Lightbox (Imagens Individuais) -->
     <div id="lightboxModal" class="lightbox-modal">
         <span class="lightbox-close" id="lightboxClose">&times;</span>
         <img class="lightbox-content" id="lightboxImg">
     </div>
 
-    <!-- Modal de Mosaicos Gerados -->
     <div id="mosaicModal" class="lightbox-modal">
         <div class="mosaic-modal-content">
             <div class="mosaic-header">
@@ -868,7 +865,6 @@
                     style="position:static; top:auto; right:auto;">&times;</span>
             </div>
             <div id="mosaicContainer" class="mosaic-container">
-                <!-- Imagens dos mosaicos gerados aparecem aqui -->
             </div>
             <div class="mosaic-footer">
                 <button id="downloadAllMosaicsBtn" class="btn btn-primary">
@@ -896,6 +892,7 @@
 
         const intervalInput = document.getElementById('intervalInput');
         const maxFramesInput = document.getElementById('maxFramesInput');
+        const maxFramesHelp = document.getElementById('maxFramesHelp'); // Capturamos o Helper Text
         const startTimeInput = document.getElementById('startTimeInput');
         const endTimeInput = document.getElementById('endTimeInput');
         const qualitySelect = document.getElementById('qualitySelect');
@@ -919,16 +916,13 @@
         const canvas = document.getElementById('processingCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-        // Toggle Advanced Options Elements
         const advancedToggleBtn = document.getElementById('advancedToggleBtn');
         const advancedOptions = document.getElementById('advancedOptions');
 
-        // Lightbox Elements
         const lightboxModal = document.getElementById('lightboxModal');
         const lightboxImg = document.getElementById('lightboxImg');
         const lightboxClose = document.getElementById('lightboxClose');
 
-        // Mosaic Modal Elements
         const mosaicModal = document.getElementById('mosaicModal');
         const mosaicContainer = document.getElementById('mosaicContainer');
         const mosaicClose = document.getElementById('mosaicClose');
@@ -937,13 +931,12 @@
         let currentVideoUrl = null;
         let videoFile = null;
         let extractedFrames = [];
-        let generatedMosaics = []; // Armazena os dados dos mosaicos gerados
+        let generatedMosaics = [];
         let isProcessing = false;
         let cancelProcessing = false;
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // ADVANCED OPTIONS LOGIC
         advancedToggleBtn.addEventListener('click', () => {
             const isOpen = advancedOptions.classList.contains('open');
             if (isOpen) {
@@ -955,7 +948,6 @@
             }
         });
 
-        // LIGHTBOX LOGIC
         function openLightbox(imgSrc) {
             lightboxImg.src = imgSrc;
             lightboxModal.style.display = 'flex';
@@ -979,7 +971,6 @@
             if (e.key === 'Escape' && mosaicModal.classList.contains('show')) closeMosaicModal();
         });
 
-        // MOSAIC MODAL LOGIC
         function closeMosaicModal() {
             mosaicModal.classList.remove('show');
             setTimeout(() => { mosaicModal.style.display = 'none'; }, 300);
@@ -989,7 +980,6 @@
             if (e.target === mosaicModal) closeMosaicModal();
         });
 
-        // UPLOAD LOGIC
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('click', function () { this.value = null; });
 
@@ -1085,6 +1075,7 @@
             input.addEventListener('input', estimateFrames);
         });
 
+        // AQUI ESTÁ A LÓGICA DE CÁLCULO VISÍVEL AO UTILIZADOR COM AVISO DE PERFORMANCE
         function estimateFrames() {
             if (!videoPlayer.duration) return;
 
@@ -1096,15 +1087,35 @@
             if (start >= end || isNaN(interval) || interval <= 0) {
                 estimationInfo.textContent = 'Parâmetros inválidos.';
                 extractBtn.disabled = true;
+                if (maxFramesHelp) maxFramesHelp.textContent = 'Máximo de fotos a gerar.';
                 return;
             }
 
             extractBtn.disabled = false;
+
+            // Aqui sabemos exatamente quantas imagens o vídeo inteiro gera neste intervalo:
             const totalEstimated = Math.floor((end - start) / interval) + 1;
             const finalCount = Math.min(totalEstimated, maxLimit);
 
-            estimationInfo.textContent = `Serão extraídos aproximadamente ${finalCount} frames.`;
-            estimationInfo.style.color = (totalEstimated > maxLimit) ? "var(--text-secondary)" : "var(--success-color)";
+            // Informamos o utilizador diretamente debaixo do campo "Limite"!
+            if (maxFramesHelp) {
+                maxFramesHelp.innerHTML = `Máximo a gerar. <span style="color: var(--accent-color);">O seu vídeo rende até <strong>${totalEstimated}</strong> frames no total.</span>`;
+            }
+
+            let infoHtml = `Serão extraídos <strong>${finalCount}</strong> frames no total.`;
+            let infoColor = (totalEstimated > maxLimit) ? "var(--text-secondary)" : "var(--success-color)";
+
+            // AVISO DE PERFORMANCE (Dispara se for extrair mais de 250 frames)
+            const dangerThreshold = 250;
+            if (finalCount > dangerThreshold) {
+                infoHtml += `<br><span style="color: #f59e0b; display: block; margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.4;">
+                    ⚠️ <strong>Aviso de Performance:</strong> Extrair ${finalCount} frames de uma só vez exige muita memória. Isso pode causar lentidão ou travamentos no navegador. Prossiga por sua conta e risco.
+                </span>`;
+                infoColor = "#f59e0b"; // Cor Laranja/Aviso
+            }
+
+            estimationInfo.innerHTML = infoHtml;
+            estimationInfo.style.color = infoColor;
         }
 
         function seekVideo(time) {
@@ -1217,11 +1228,9 @@
         });
 
         function clearGallery() {
-            // Limpa as imagens normais extraídas
             extractedFrames.forEach(frame => URL.revokeObjectURL(frame.blobUrl));
             extractedFrames = [];
 
-            // Limpa também a memória dos mosaicos se houver
             generatedMosaics.forEach(m => URL.revokeObjectURL(m.url));
             generatedMosaics = [];
 
@@ -1352,7 +1361,6 @@
             }
         });
 
-        // --- LÓGICA DO MOSAICO COM MODAL E LIMITAÇÃO ---
         generateMosaicBtn.addEventListener('click', async () => {
             if (extractedFrames.length === 0) return;
 
@@ -1360,7 +1368,6 @@
             generateMosaicBtn.innerHTML = `<svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg> Processando...`;
             generateMosaicBtn.disabled = true;
 
-            // Abrir Modal de imediato e mostrar estado de carregamento
             mosaicContainer.innerHTML = '<div style="text-align:center; padding: 3rem; color: var(--text-secondary);">A gerar mosaicos... Isto pode levar alguns segundos.</div>';
             mosaicModal.style.display = 'flex';
             setTimeout(() => mosaicModal.classList.add('show'), 10);
@@ -1368,11 +1375,9 @@
             try {
                 await yieldThread();
 
-                // Limpar array da memória anterior se existir
                 generatedMosaics.forEach(m => URL.revokeObjectURL(m.url));
                 generatedMosaics = [];
 
-                // Dividir em "Chunks" (Pedaços) de 50 frames no máximo
                 const maxPerMosaic = 50;
                 const chunks = [];
                 for (let i = 0; i < extractedFrames.length; i += maxPerMosaic) {
@@ -1385,7 +1390,6 @@
                 const padding = 24;
                 const headerHeight = 110;
 
-                // Processar cada "Pedaço" num Mosaico próprio
                 for (let c = 0; c < chunks.length; c++) {
                     const chunkFrames = chunks[c];
                     const totalChunkFrames = chunkFrames.length;
@@ -1398,11 +1402,9 @@
                     mCanvas.height = padding * 2 + headerHeight + rows * thumbHeight + (rows - 1) * gap;
                     const mCtx = mCanvas.getContext('2d');
 
-                    // 1. Pintar Fundo
                     mCtx.fillStyle = '#18181b';
                     mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
 
-                    // 2. Escrever Cabeçalho
                     mCtx.fillStyle = '#ffffff';
                     mCtx.font = 'bold 26px sans-serif';
                     let titleText = `Arquivo: ${videoFile.name}`;
@@ -1420,7 +1422,6 @@
                     mCtx.fillStyle = '#8b5cf6';
                     mCtx.fillText(`Gerado por CutGo - Extrator de Frames`, padding, padding + 95);
 
-                    // 3. Renderizar cada Frame no pedaço atual
                     for (let i = 0; i < totalChunkFrames; i++) {
                         const frame = chunkFrames[i];
                         const col = i % cols;
@@ -1446,7 +1447,6 @@
                         mCtx.fillText(text, x + 13, y + 23);
                     }
 
-                    // 4. Salvar na memória a imagem final deste bloco
                     const blob = await new Promise(res => mCanvas.toBlob(res, 'image/jpeg', 0.90));
                     const url = URL.createObjectURL(blob);
 
@@ -1456,11 +1456,9 @@
                         filename: `CutGo_Mosaico_${videoFile.name}_Parte${c + 1}.jpg`
                     });
 
-                    // Permitir UI respirar
                     await yieldThread();
                 }
 
-                // 5. Renderizar imagens no Modal
                 mosaicContainer.innerHTML = '';
                 generatedMosaics.forEach((mosaicData, index) => {
                     const wrapper = document.createElement('div');
@@ -1493,7 +1491,6 @@
             }
         });
 
-        // Download Todos os Mosaicos em ZIP (Botão dentro do Modal)
         downloadAllMosaicsBtn.addEventListener('click', async function () {
             if (generatedMosaics.length === 0) return;
             const originalText = this.innerHTML;
