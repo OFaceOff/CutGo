@@ -44,7 +44,14 @@
         }
 
         body {
-            background-color: #09090b;
+            background-color: var(--bg-body);
+            background-image:
+                radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15), transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            background-attachment: fixed;
+
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
@@ -365,14 +372,12 @@
             gap: 1rem;
         }
 
-        /* --- Organização dos Botões da Galeria --- */
         .header-actions {
             display: flex;
             gap: 0.75rem;
             align-items: center;
         }
 
-        /* No telemóvel, re-arranja num Grid bonito em vez de ficar desalinhado */
         @media (max-width: 640px) {
             .header-actions {
                 width: 100%;
@@ -478,7 +483,6 @@
             grid-column: 1 / -1;
         }
 
-        /* --- Opções Avançadas --- */
         .advanced-toggle {
             background: none;
             border: none;
@@ -520,7 +524,6 @@
             opacity: 1;
         }
 
-        /* --- Modal Genérico (Lightbox e Mosaicos) --- */
         .lightbox-modal {
             display: none;
             position: fixed;
@@ -567,7 +570,6 @@
             color: var(--danger-color);
         }
 
-        /* --- Estilo Específico do Modal de Mosaicos --- */
         .mosaic-modal-content {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -723,7 +725,6 @@
                 </div>
 
                 <div class="settings-panel">
-                    <!-- Opções Principais -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="intervalInput">Intervalo de Captura</label>
@@ -739,7 +740,6 @@
                                 <input type="number" id="maxFramesInput" min="1" step="1" value="100">
                                 <span class="input-suffix">frames</span>
                             </div>
-                            <!-- AQUI ESTÁ O NOVO TEXTO DE AJUDA -->
                             <span class="help-text" id="maxFramesHelp">Máximo de fotos a gerar.</span>
                         </div>
                     </div>
@@ -756,7 +756,6 @@
                         <span class="help-text">Define o peso e a qualidade das fotos geradas.</span>
                     </div>
 
-                    <!-- Botão Toggle -->
                     <button type="button" id="advancedToggleBtn" class="advanced-toggle">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -772,7 +771,6 @@
                         </svg>
                     </button>
 
-                    <!-- Opções Ocultas -->
                     <div id="advancedOptions" class="advanced-options">
                         <div class="form-row">
                             <div class="form-group">
@@ -794,7 +792,6 @@
                         </div>
                     </div>
 
-                    <!-- Mensagem Refinada da Estimativa -->
                     <span class="text-info" id="estimationInfo"
                         style="margin-top: 0.5rem; font-size: 0.85rem;">Calculando estimativa...</span>
 
@@ -892,7 +889,7 @@
 
         const intervalInput = document.getElementById('intervalInput');
         const maxFramesInput = document.getElementById('maxFramesInput');
-        const maxFramesHelp = document.getElementById('maxFramesHelp'); // Capturamos o Helper Text
+        const maxFramesHelp = document.getElementById('maxFramesHelp');
         const startTimeInput = document.getElementById('startTimeInput');
         const endTimeInput = document.getElementById('endTimeInput');
         const qualitySelect = document.getElementById('qualitySelect');
@@ -1075,7 +1072,6 @@
             input.addEventListener('input', estimateFrames);
         });
 
-        // AQUI ESTÁ A LÓGICA DE CÁLCULO VISÍVEL AO UTILIZADOR COM AVISO DE PERFORMANCE
         function estimateFrames() {
             if (!videoPlayer.duration) return;
 
@@ -1093,11 +1089,9 @@
 
             extractBtn.disabled = false;
 
-            // Aqui sabemos exatamente quantas imagens o vídeo inteiro gera neste intervalo:
             const totalEstimated = Math.floor((end - start) / interval) + 1;
             const finalCount = Math.min(totalEstimated, maxLimit);
 
-            // Informamos o utilizador diretamente debaixo do campo "Limite"!
             if (maxFramesHelp) {
                 maxFramesHelp.innerHTML = `Máximo a gerar. <span style="color: var(--accent-color);">O seu vídeo rende até <strong>${totalEstimated}</strong> frames no total.</span>`;
             }
@@ -1105,13 +1099,12 @@
             let infoHtml = `Serão extraídos <strong>${finalCount}</strong> frames no total.`;
             let infoColor = (totalEstimated > maxLimit) ? "var(--text-secondary)" : "var(--success-color)";
 
-            // AVISO DE PERFORMANCE (Dispara se for extrair mais de 250 frames)
             const dangerThreshold = 250;
             if (finalCount > dangerThreshold) {
                 infoHtml += `<br><span style="color: #f59e0b; display: block; margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.4;">
-                    ⚠️ <strong>Aviso de Performance:</strong> Extrair ${finalCount} frames de uma só vez exige muita memória. Isso pode causar lentidão ou travamentos no navegador. Prossiga por sua conta e risco.
+                    ⚠️ <strong>Aviso de Performance:</strong> Extrair ${finalCount} frames de uma só vez exige muita memória. Isso pode causar lentidão ou travamentos no navegador.
                 </span>`;
-                infoColor = "#f59e0b"; // Cor Laranja/Aviso
+                infoColor = "#f59e0b";
             }
 
             estimationInfo.innerHTML = infoHtml;
